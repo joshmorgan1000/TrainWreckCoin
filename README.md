@@ -1,10 +1,10 @@
 # TrainWreckCoin
 
-Welcome to **TrainWreckCoin**—the AI-powered cryptocurrency that no one asked for, but we built anyway. Where blockchain meets deep learning, and everyone wonders, "Is this really necessary?" If you’re here to find meaning in the chaos, you might want to lower your expectations—because much like an unstable neural network, any perceived value here is probably just a hallucination.
+Welcome to **TrainWreckCoin**—the AI-powered cryptocurrency that no one asked for, but I built anyway. Where blockchain meets deep learning, and everyone wonders, "Is this really necessary?" If you’re here to find meaning in the chaos, you might want to lower your expectations—because much like an unstable neural network, any perceived value here is probably just a hallucination.
 
 ## Introduction
 
-TrainWreckCoin is the bleeding edge of distributed ledger technology combined with state-of-the-art machine learning buzzwords. We’ve packed so many concepts into this project that even we’re not sure what half of them mean anymore. But hey, as long as it sounds impressive, right?
+TrainWreckCoin is the bleeding edge of distributed ledger technology combined with state-of-the-art machine learning buzzwords. I’ve packed so many concepts into this project that even I'm not sure what half of them mean anymore. But hey, as long as it sounds impressive, right?
 
 ## The Block Cycle: A Masterpiece of Misguided Innovation
 
