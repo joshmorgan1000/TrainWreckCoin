@@ -4,8 +4,10 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <atomic>
 #include "BlockStore.h"
 #include "nlohmann/json.hpp"
+#include "Logger.h"
 
 enum class LayerType {
     FullyConnected,
@@ -47,6 +49,8 @@ public:
     std::vector<LayerDefinition> layers;
     std::string dataset_hash;
     std::string encrypted_label_key;
+    static std::atomic_flag file_write_flag;
+    static std::atomic_flag file_read_flag;
 
     ModelDefinitionTransaction(const std::string& name, const std::string& benefactor,
                                const std::string& dataset_hash, const std::string& encrypted_key)
@@ -91,18 +95,34 @@ public:
 
     // Store the transaction in BlockStore
     void store(BlockStore &block_store, std::string &block_key) const {
-        if (const std::string serialized_data = serialize(); !block_store.storeBlock(block_key, serialized_data)) {
-            std::cerr << "Failed to store the block in BlockStore" << std::endl;
+        Logger::log("ModelDefinitionTransaction", "Getting the thread locks to write a record...");
+        while (file_write_flag.test_and_set(std::memory_order_acquire) || file_read_flag.test(std::memory_order_acquire)) {
+            while (file_write_flag.test(std::memory_order_acquire) && file_read_flag.test(std::memory_order_acquire)) {
+                std::this_thread::yield();
+            }
         }
+        if (const std::string serialized_data = serialize(); !block_store.storeBlock(block_key, serialized_data)) {
+            Logger::log("ModelDefinitionTransaction", "Failed to store the block in BlockStore");
+        }
+        file_write_flag.clear(std::memory_order_release);
+        file_write_flag.notify_all();
+        Logger::log("ModelDefinitionTransaction", "ModelDefinitionTransaction stored successfully with key: " + block_key);
     }
 
     // Load the transaction from BlockStore
     static ModelDefinitionTransaction load(BlockStore& block_store, const std::string& block_key) {
+        Logger::log("ModelDefinitionTransaction", "Getting the thread locks to read a record...");
+        if (file_write_flag.test(std::memory_order_acquire)) {
+            file_write_flag.wait(true, std::memory_order_release);
+        }
+        file_read_flag.test_and_set(std::memory_order_relaxed);
         const std::string serialized_data = block_store.retrieveBlock(block_key);
+        file_read_flag.clear(std::memory_order_release);
         if (serialized_data.empty()) {
-            std::cerr << "Failed to load the block from BlockStore" << std::endl;
+            Logger::log("ModelDefinitionTransaction", "Failed to load block");
             throw std::runtime_error("Failed to load block");
         }
+        Logger::log("ModelDefinitionTransaction", "Loaded ModelDefinitionTransaction from BlockStore with key: " + block_key);
         return deserialize(serialized_data);
     }
 
@@ -110,5 +130,8 @@ public:
         return true;
     }
 };
+
+std::atomic_flag ModelDefinitionTransaction::file_write_flag = false;
+std::atomic_flag ModelDefinitionTransaction::file_read_flag = false;
 
 #endif // MODEL_DEFINITION_TRANSACTION_H

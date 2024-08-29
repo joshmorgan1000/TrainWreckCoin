@@ -3,6 +3,7 @@
 
 #include <zmq.hpp>
 #include <string>
+#include <cstring>
 
 class ZeroMQBroadcastWrapper {
 public:

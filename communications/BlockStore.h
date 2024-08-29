@@ -1,13 +1,16 @@
 #ifndef BLOCK_STORE_H
 #define BLOCK_STORE_H
 
-#include <tkrzw_dbm_tree.h>
+#include <tkrzw_dbm_hash.h>
 #include <string>
 #include <iostream>
+#include "Logger.h"
 
 class BlockStore {
 public:
+
     explicit BlockStore(const std::string& file_path) {
+        Logger::log("BlockStore", "Opening up the BlockStore database...");
         // Open the tkrzw skip database file
         if (const auto status = dbm.Open(file_path, true, tkrzw::File::OPEN_TRUNCATE); status != tkrzw::Status::SUCCESS) {
             std::cerr << "Error opening the skip table database: " << status << std::endl;
@@ -68,7 +71,7 @@ public:
     }
 
 private:
-    tkrzw::TreeDBM dbm;  // Use SkipDBM instead of DBM
+    tkrzw::HashDBM dbm;
 };
 
 #endif // BLOCK_STORE_H

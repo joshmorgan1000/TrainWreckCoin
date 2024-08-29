@@ -12,6 +12,7 @@ public:
         : blockStore(store), zmq_wrapper(broadcast_address, false), stop_thread(false) {}
 
     void start() {
+        Logger::log("ValidationWorker", "Starting the Validation Worker thread...");
         validator_thread = std::thread(&ValidationWorker::run, this);
     }
 
@@ -31,6 +32,7 @@ private:
     void run() {
         while (!stop_thread) {
             // Listen for broadcasts from the Training Miner
+            Logger::log("ValidationWorker", "Listening for broadcast messages...");
             std::string message = zmq_wrapper.receiveBroadcast();
             std::cout << "Validation Worker: Received broadcast message: " << message << std::endl;
 
@@ -52,7 +54,8 @@ private:
             }
 
             // Sleep or wait for the next cycle
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            Logger::log("ValidationWorker", "Waiting for a bit to simulate validation work...");
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
     }
 
